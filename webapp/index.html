@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8>
+    <title>My first three.js app</title>
+    <style>
+        body { margin: 0; padding: 0;}
+        canvas { width: 100%; height: 100% }
+
+        .controls{
+            position: fixed;
+            left:0;
+            top:0;
+            bottom: 0;
+            width: 200px;
+            background: #ededed;
+            border-right: red solid 1px;
+        }
+        .board{
+            position: fixed;
+            left:201px;
+            top:0;
+            bottom: 0;
+            right: 0;
+
+        }
+    </style>
+    <link rel="stylesheet" href="/css/controls.css">
+</head>
+<body>
+    <div class="controls" id="controls">
+        <div class="controlbox">
+            <button type="button" name="up">Arriba</button>
+            <button type="button" name="up">abajo</button>
+            <button type="button" name="up">Izquierda</button>
+            <button type="button" name="up">derecha</button>
+
+            <button type="button" name="up">rotar l</button>
+            <button type="button" name="up">rotar d</button>
+        </div>
+
+    </div>
+    <div class="board" id="board">
+
+    </div>
+
+    <script src="bower_components/three.js/build/three.js"></script>
+    <script src="js/3dBoardController.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

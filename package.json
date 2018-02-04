@@ -1,0 +1,23 @@
+{
+  "name": "rpgboard",
+  "version": "1.0.0",
+  "description": "Miniature virtual board",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ignaciojgp/rpgboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ignaciojgp/rpgboard/issues"
+  },
+  "homepage": "https://github.com/ignaciojgp/rpgboard#readme",
+  "devDependencies": {
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4"
+  }
+}

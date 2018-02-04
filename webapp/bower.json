@@ -1,0 +1,17 @@
+{
+  "name": "rpgboard",
+  "homepage": "https://github.com/ignaciojgp/rpgboard",
+  "authors": [
+    "IgnacioJGP <ignaciojpg@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
