@@ -22,11 +22,13 @@ function BoardController(element){
     var cameratarget = new THREE.Vector3(gridsize/2,0,gridsize/2);
     var raycaster = new THREE.Raycaster();
     var grid = [];
+    var wallGrid = [];
     var usertiles = [];
 
     var texture = new THREE.TextureLoader().load( 'assets/crate2_diffuse.png' );
     var cratematerial = new THREE.MeshBasicMaterial( { map: texture }  );
     var gridTileMaterial = new THREE.MeshBasicMaterial( { color: 0xffaa00, wireframe: true } );
+    var gridWallTileMaterial = new THREE.MeshBasicMaterial( { color: 0xffFF66, wireframe: true } );
     var showFloodGrid = true;
 
     createTileMap(gridsize);
@@ -84,11 +86,56 @@ function BoardController(element){
         return cube;
     }
 
+    function createWallTile(x,z,pos,height,material){
+
+        var sizex = pos == 0 || pos == 2 ? 1:0.1;
+        var sizez = pos == 0 || pos == 2 ? 0.1:1;
+        var sizey = height;
+
+        var geometry = new THREE.BoxGeometry( sizex, height, sizez );
+        var cube = new THREE.Mesh( geometry, material );
+
+        var modPosX = 0;
+        var modPosZ = 0;
+
+        if(pos == 0){
+            modPosZ = 0.5;
+        }else if(pos == 1){
+            modPosX = 0.5;
+        }else if(pos == 2){
+            modPosZ = -0.5;
+        }else if(pos == 3){
+            modPosX = -0.5;
+        }
+
+        cube.position.x = x+modPosX;
+        cube.position.z = z+modPosZ;
+        cube.position.y = height/2;
+
+        scene.add(cube);
+
+        return cube;
+    }
+
     function createTileMap(size){
 
         for(var i=0;i<size;i++){
             for(var j=0;j<size;j++){
                 var cube = createTile(i,j,gridTileMaterial);
+
+                if(i==0){
+                    var topWall = createWallTile(i,j,0,0.4,gridWallTileMaterial);
+                }
+                if(j==0){
+                    var leftWall = createWallTile(i,j,3,0.4,gridWallTileMaterial);
+                }
+                var rightWall = createWallTile(i,j,1,0.4,gridWallTileMaterial);
+                var bottomWall = createWallTile(i,j,2,0.4,gridWallTileMaterial);
+
+                wallGrid.push(topWall);
+                wallGrid.push(bottomWall);
+                wallGrid.push(rightWall);
+                wallGrid.push(leftWall);
                 grid.push(cube);
             }
         }
@@ -114,10 +161,20 @@ function BoardController(element){
         mouse.y = - ( y / renderer.domElement.clientHeight ) * 2 + 1;
         raycaster.setFromCamera( mouse, camera );
 
-        var intersects = raycaster.intersectObjects( grid );
-        if ( intersects.length > 0 ) {
-            var obj = intersects[0].object;
+        var tileIntersects = raycaster.intersectObjects( grid );
+
+        if ( tileIntersects.length > 0 ) {
+            var obj = tileIntersects[0].object;
             var tileEvent = new CustomEvent('onTileClick', {"detail":obj});
+            domparent.dispatchEvent(tileEvent);
+
+        }
+
+        var userTileIntersects = raycaster.intersectObjects( grid );
+
+        if ( userTileIntersects.length > 0 ) {
+            var obj = userTileIntersects[0].object;
+            var tileEvent = new CustomEvent('onUserTileClick', {"detail":obj});
             domparent.dispatchEvent(tileEvent);
         }
 
@@ -126,6 +183,13 @@ function BoardController(element){
     this.toggleFlootGrid = function(){
         for(var i in grid){
             var obj = grid[i];
+            obj.visible = !obj.visible;
+
+        }
+    }
+    this.toggleWallGrid = function(){
+        for(var i in wallGrid){
+            var obj = wallGrid[i];
             obj.visible = !obj.visible;
 
         }

@@ -107,4 +107,9 @@ function changeTileImage(texture){
 
 function ocultaGrid(){
     boardConcontroller.toggleFlootGrid();
+
+}
+function ocultaWallGrid(){
+    boardConcontroller.toggleWallGrid();
+
 }
