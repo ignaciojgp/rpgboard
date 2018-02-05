@@ -1,17 +1,26 @@
-
 var board = document.getElementById("board");
-
+var textureIMG = 'assets/stone.jpg';
 var boardConcontroller = new BoardController(board);
 
 window.addEventListener( 'mousemove', onMouseMove, false );
 board.addEventListener( 'mousedown', onDocumentMouseDown, false );
 board.addEventListener( 'touchstart', onDocumentTouchStart, false );
+board.addEventListener( 'onTileClick', onTileClick, false );
+document.addEventListener("keydown", keyDownTextField, false);
 
-board.addEventListener('onTileClick',function(event){
-    console.log(event.detail.position);
-},false);
+
 
 boardConcontroller.rotateCamera([0,0]);
+
+function onTileClick(event){
+    console.log(event.detail.position);
+    addTile(event.detail.position.x,event.detail.position.z);
+
+}
+
+function addTile(x,y){
+    boardConcontroller.createTileWithtexture(x,y,textureIMG);
+}
 
 function onDocumentTouchStart( event ) {
     event.preventDefault();
@@ -34,6 +43,35 @@ function onMouseMove(event){
 function onClickControlCameraButton(sender){
     cameraAction(sender.name);
 }
+
+function keyDownTextField(e) {
+    var keyCode = e.keyCode;
+
+    switch (keyCode) {
+        case 38:
+        cameraAction("up");
+        break;
+        case 40:
+        cameraAction("down");
+        break;
+        case 37:
+        cameraAction("left");
+        break;
+        case 39:
+        cameraAction("right");
+        break;
+        case 65:
+        cameraAction("rl");
+        break;
+        case 68:
+        cameraAction("rr");
+        break;
+
+    }
+}
+
+
+
 
 
 function cameraAction(command){
@@ -61,4 +99,12 @@ function cameraAction(command){
 
     }
 
+}
+
+function changeTileImage(texture){
+    textureIMG = texture;
+}
+
+function ocultaGrid(){
+    boardConcontroller.toggleFlootGrid();
 }

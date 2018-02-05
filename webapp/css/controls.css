@@ -51,3 +51,6 @@ position: absolute;
     right: 10px;
 
 }
+.controls img{
+    max-width: 50px;
+}
