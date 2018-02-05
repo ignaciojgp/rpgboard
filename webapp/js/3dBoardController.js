@@ -1,11 +1,12 @@
 function BoardController(element){
 
     var gridsize = 20;
+    var domparent = element;
 
     var scene = new THREE.Scene();
     scene.background = new THREE.Color(0xededed);
 
-    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.2, 1000 );
+    var camera = new THREE.PerspectiveCamera( 50, window.innerWidth/window.innerHeight, 0.2, 1000 );
     camera.position.y = 2;
     camera.position.z = 5;
 
@@ -15,8 +16,10 @@ function BoardController(element){
     element.appendChild( renderer.domElement );
 
 
-    var angle = [0.5,0.5];
-    var cameratarger = new THREE.Vector3(gridsize/2,0,gridsize/2);
+    var cameraangle = [0.5,0.5];
+    var camerazoom = 5;
+
+    var cameratarget = new THREE.Vector3(gridsize/2,0,gridsize/2);
     var raycaster = new THREE.Raycaster();
     var grid = [];
 
@@ -31,22 +34,49 @@ function BoardController(element){
 
     var animate = function () {
         requestAnimationFrame( animate );
+
+
         renderer.render( scene, camera );
     };
 
 
+    this.rotateLeft = function(){
+
+        cameraangle[0]+=0.01;
+
+        this.rotateCamera(cameraangle);
+    }
+    this.rotateRight = function(speed){
+        cameraangle[0]-=speed;
+        this.rotateCamera(cameraangle);
+    }
+    this.moveForward = function(speed){
+        cameratarget.z+=speed;
+        this.rotateCamera(cameraangle);
+    }
+    this.moveBackward = function(speed){
+        cameratarget.z-=speed;
+        this.rotateCamera(cameraangle);
+    }
+    this.trackLeft = function(speed){
+        cameratarget.x+=speed;
+        this.rotateCamera(cameraangle);
+    }
+    this.trackRight = function(speed){
+        cameratarget.x-=speed;
+        this.rotateCamera(cameraangle);
+    }
 
 
     this.rotateCamera = function(rotation) {
         // rotation[0] = ev.clientX / window.innerWidth;
         // rotation[1] = ev.clientY / window.innerHeight;
-        angle = rotation;
-        zoom = 5;
+        cameraangle = rotation;
+        camera.position.x =( Math.sin(2 * Math.PI * (cameraangle[0] - .5)) * camerazoom) + cameratarget.x;
+        camera.position.z =( Math.cos(2 * Math.PI * (cameraangle[0] - .5)) * camerazoom) + cameratarget.z;
 
-        camera.position.x =( Math.sin(2 * Math.PI * (angle[0] - .5)) * zoom) + cameratarger.x;
-        camera.position.z =( Math.cos(2 * Math.PI * (angle[0] - .5)) * zoom) + cameratarger.z;
 
-        camera.lookAt(cameratarger);
+        camera.lookAt(cameratarget);
     }
 
 
@@ -98,7 +128,15 @@ function BoardController(element){
             // particle.position.copy( intersects[ 0 ].point );
             // particle.scale.x = particle.scale.y = 16;
             // scene.add( particle );
+
+            var tileEvent = new CustomEvent('onTileClick', {"detail":obj});
+
+
+            domparent.dispatchEvent(tileEvent);
+
         }
+
+
 
     }
 

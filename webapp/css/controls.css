@@ -1,5 +1,53 @@
 .controlbox{
     margin: 10px;
-    height: 300px;
+    height: 170px;
     background: #ccc;
+position: relative;;
+}
+.controlbox button{
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: none;
+    display: block;
+color: white;
+position: absolute;
+
+}
+
+.controlbox button img{
+
+    width: 100%;
+
+}
+
+.controlbox button[name="up"]{
+    top:10px;
+    left: 50%;
+    margin-left: -20px;
+}
+.controlbox button[name="left"]{
+    top:40px;
+    left: 10px;
+
+}
+.controlbox button[name="right"]{
+    top:40px;
+    right: 10px;
+
+}
+.controlbox button[name="down"]{
+    top:70px;
+    left: 50%;
+    margin-left: -20px;
+}
+.controlbox button[name="rl"]{
+    top:120px;
+    left: 10px;
+
+}
+.controlbox button[name="rr"]{
+    top:120px;
+    right: 10px;
+
 }
