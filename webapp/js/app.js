@@ -5,21 +5,35 @@ var boardConcontroller = new BoardController(board);
 window.addEventListener( 'mousemove', onMouseMove, false );
 board.addEventListener( 'mousedown', onDocumentMouseDown, false );
 board.addEventListener( 'touchstart', onDocumentTouchStart, false );
-board.addEventListener( 'onTileClick', onTileClick, false );
 document.addEventListener("keydown", keyDownTextField, false);
 
+board.addEventListener( 'onTileClick', onTileClick, false );
+board.addEventListener( 'onWallTileClick', onWallTileClick, false );
+board.addEventListener( 'onUserFloorTileClick', onUserFloorTileClick, false );
 
 
 boardConcontroller.rotateCamera([0,0]);
 
 function onTileClick(event){
-    console.log(event.detail.position);
+
     addTile(event.detail.position.x,event.detail.position.z);
+
+}
+function onWallTileClick(event){
+    console.log(event.detail.position);
+    addWallTile(event.detail.tilePosition.x,event.detail.tilePosition.z,event.detail.wallPosition);
+}
+function onUserFloorTileClick(event){
+    // console.log(event.detail.position);
+    // addTile(event.detail.position.x,event.detail.position.z);
 
 }
 
 function addTile(x,y){
-    boardConcontroller.createTileWithtexture(x,y,textureIMG);
+    boardConcontroller.createTileWithTexture(x,y,textureIMG);
+}
+function addWallTile(x,y,pos){
+    boardConcontroller.createWallTileWithTexture(x,y,pos,2,textureIMG)
 }
 
 function onDocumentTouchStart( event ) {
