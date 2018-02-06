@@ -1,6 +1,8 @@
 var board = document.getElementById("board");
 var textureIMG = 'assets/stone.jpg';
 var boardConcontroller = new BoardController(board);
+var characterModel = 'assets/warrior.obj';
+var characterTexture = "assets/warrior_difuse.jpg";
 
 window.addEventListener( 'mousemove', onMouseMove, false );
 board.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -26,9 +28,12 @@ function onWallTileClick(event){
 function onUserFloorTileClick(event){
     // console.log(event.detail.position);
     // addTile(event.detail.position.x,event.detail.position.z);
+    addWarrior(event.detail.position.x,event.detail.position.z);
+}
+function addWarrior(x,y){
+    boardConcontroller.addModel(characterModel,characterTexture,x,y);
 
 }
-
 function addTile(x,y){
     boardConcontroller.createTileWithTexture(x,y,textureIMG);
 }
@@ -62,10 +67,10 @@ function keyDownTextField(e) {
     var keyCode = e.keyCode;
 
     switch (keyCode) {
-        case 38:
+        case 87:
         cameraAction("up");
         break;
-        case 40:
+        case 83:
         cameraAction("down");
         break;
         case 37:

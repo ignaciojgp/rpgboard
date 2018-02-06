@@ -34,23 +34,7 @@ function BoardController(element){
 
     var manager = new THREE.LoadingManager();
 
-    var textureLoader = new THREE.TextureLoader( manager );
-	var warriort = textureLoader.load(  );
-    var loader = new THREE.OBJLoader( manager );
-	loader.load( 'assets/warrior.obj', function ( object ) {
-		object.traverse( function ( child ) {
-			if ( child instanceof THREE.Mesh ) {
-				//child.material.map = texture;
-                var warriortexture = new THREE.TextureLoader().load( 'assets/warrior_difuse.jpg' );
-                var  warriormaterial = new THREE.MeshBasicMaterial( { map: warriortexture }  );
 
-                child.material = warriormaterial;
-			}
-		} );
-		//object.position.y = - 95;
-		scene.add( object );
-        object.position = THREE.Vector3(5,0,5);
-	}, null, null );
 
     createTileMap(gridsize);
 
@@ -69,12 +53,20 @@ function BoardController(element){
         this.rotateCamera(cameraangle);
     }
     this.moveForward = function(speed){
-        cameratarget.z+=speed;
-        this.rotateCamera(cameraangle);
+
+        var displacement = camera.position.clone().sub(cameratarget);
+        displacement.y=0;
+        displacement.multiply(new THREE.Vector3(-0.1,0,-0.1));
+        cameratarget.add(displacement);
+        camera.position.add(displacement);
+
     }
     this.moveBackward = function(speed){
-        cameratarget.z-=speed;
-        this.rotateCamera(cameraangle);
+        var displacement = camera.position.clone().sub(cameratarget);
+        displacement.y=0;
+        displacement.multiply(new THREE.Vector3(0.1,0,0.1));
+        cameratarget.add(displacement);
+        camera.position.add(displacement);
     }
     this.trackLeft = function(speed){
         cameratarget.x+=speed;
@@ -197,7 +189,32 @@ function BoardController(element){
         userWallTiles.push(usertile);
     }
 
+    this.addModel = function(objURL,textureURL,x,y){
+        var textureLoader = new THREE.TextureLoader( manager );
+        var loader = new THREE.OBJLoader( manager );
 
+    	loader.load( objURL, function ( object ) {
+
+    		object.traverse( function ( child ) {
+    			if ( child instanceof THREE.Mesh ) {
+
+                    var modeltexture = new THREE.TextureLoader().load( textureURL );
+                    var  modelmaterial = new THREE.MeshBasicMaterial( { map: modeltexture }  );
+
+                    child.material = modelmaterial;
+                    scene.add(child);
+
+                    child.position.x = x;
+                    child.position.z = y;
+
+    			}
+    		} );
+
+
+
+    	}, null, null );
+
+    }
     //interaction
     this.clickInteractionWithCoods = function(x,y){
         this.onDocumentMouseDown(x,y);
