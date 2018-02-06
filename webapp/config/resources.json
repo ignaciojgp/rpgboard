@@ -1,0 +1,31 @@
+{
+    "floorTiles":[
+        {
+            "name":"piedra",
+            "image":"stone.jgp"
+        },
+        {
+            "name":"madera",
+            "image":"crate2_diffuse.png"
+        }
+    ],
+    "wallTiles":[
+        {
+            "name":"piedra",
+            "image":"stone.jgp"
+        },
+        {
+            "name":"madera",
+            "image":"crate2_diffuse.png"
+        }
+    ],
+    "characterModels":[
+        {
+            "name":"warrior",
+            "geometry":"warior.obj",
+            "texture":"warrior_difuse.jpg"
+        }
+    ]
+
+
+}
