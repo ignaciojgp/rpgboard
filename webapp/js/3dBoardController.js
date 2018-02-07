@@ -232,7 +232,7 @@ function BoardController(element){
     this.addModel = function(objURL,textureURL,x,y){
         var textureLoader = new THREE.TextureLoader( manager );
         var loader = new THREE.OBJLoader( manager );
-
+        var model = null;
     	loader.load( objURL, function ( object ) {
 
     		object.traverse( function ( child ) {
@@ -248,6 +248,9 @@ function BoardController(element){
                     child.position.z = y;
 
                     userModels.push(child);
+
+                    var event = new CustomEvent("onModelAdded", {"detail":child});
+                    domparent.dispatchEvent(event);
     			}
     		} );
     	}, null, null );

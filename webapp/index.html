@@ -32,6 +32,7 @@
         {{submode}}
     </div>
     <div class="toolsPanel">
+        {{playModelSelected.position}}
         <ul>
             <li ng-repeat="index in modeOptions">
                 <a ng-click="clickOnOption(index)">{{index}}</a>
@@ -40,7 +41,8 @@
         <ul>
             <li><a href="#" onclick="changeTileImage('assets/stone.jpg')"><img src="assets/stone.jpg" alt="tile"></a></li>
         </ul>
-        <div class="modelControls" ng-show="showModelControl">
+        <div class="modelControls" ng-show="showModelControls">
+
             <button ng-click="clickRotateButton('rl')" type="button" name="rl">
                 <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTY2NCAyNTZ2NDQ4cTAgMjYtMTkgNDV0LTQ1IDE5aC00NDhxLTQyIDAtNTktNDAtMTctMzkgMTQtNjlsMTM4LTEzOHEtMTQ4LTEzNy0zNDktMTM3LTEwNCAwLTE5OC41IDQwLjV0LTE2My41IDEwOS41LTEwOS41IDE2My41LTQwLjUgMTk4LjUgNDAuNSAxOTguNSAxMDkuNSAxNjMuNSAxNjMuNSAxMDkuNSAxOTguNSA0MC41cTExOSAwIDIyNS01MnQxNzktMTQ3cTctMTAgMjMtMTIgMTQgMCAyNSA5bDEzNyAxMzhxOSA4IDkuNSAyMC41dC03LjUgMjIuNXEtMTA5IDEzMi0yNjQgMjA0LjV0LTMyNyA3Mi41cS0xNTYgMC0yOTgtNjF0LTI0NS0xNjQtMTY0LTI0NS02MS0yOTggNjEtMjk4IDE2NC0yNDUgMjQ1LTE2NCAyOTgtNjFxMTQ3IDAgMjg0LjUgNTUuNXQyNDQuNSAxNTYuNWwxMzAtMTI5cTI5LTMxIDcwLTE0IDM5IDE3IDM5IDU5eiIvPjwvc3ZnPg==" /></button>
             <button ng-click="clickRotateButton('rr')" type="button" name="rr">
