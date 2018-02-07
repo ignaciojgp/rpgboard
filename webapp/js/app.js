@@ -19,6 +19,36 @@ function mainController($scope,$http){
     board.addEventListener( 'onWallTileClick', onWallTileClick, false );
     board.addEventListener( 'onUserFloorTileClick', onUserFloorTileClick, false );
 
+    //modo de juego
+    $scope.screenModes = ["floor edition","wall edition","character edition","play mode"];
+    $scope.selectedScreenMode = null;
+
+
+    $scope.changeMode = function(value){
+        $scope.selectedScreenMode = value;
+
+        switch ($scope.selectedScreenMode) {
+            case "floor edition":
+                boardConcontroller.hideWallGrid();
+                boardConcontroller.showFloorGrid();
+                break;
+            case "wall edition":
+                boardConcontroller.showWallGrid();
+                boardConcontroller.hideFloorGrid();
+                break;
+            case "character edition":
+                boardConcontroller.hideFloorGrid();
+                boardConcontroller.hideWallGrid();
+                break;
+            case "play mode":
+                boardConcontroller.hideFloorGrid();
+                boardConcontroller.hideWallGrid();
+                break;
+            default:
+
+        }
+    }
+    $scope.changeMode("floor edition");
 
     boardConcontroller.rotateCamera([0,0]);
 
@@ -41,7 +71,9 @@ function mainController($scope,$http){
     function onUserFloorTileClick(event){
         // console.log(event.detail.position);
         // addTile(event.detail.position.x,event.detail.position.z);
-        addWarrior(event.detail.position.x,event.detail.position.z);
+        if($scope.selectedScreenMode == "character edition"){
+            addWarrior(event.detail.position.x,event.detail.position.z);
+        }
     }
     function addWarrior(x,y){
         boardConcontroller.addModel(characterModel,characterTexture,x,y);

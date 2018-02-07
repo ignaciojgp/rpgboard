@@ -3,29 +3,8 @@
 <head>
     <meta charset=utf-8>
     <title>My first three.js app</title>
-    <style>
-        body { margin: 0; padding: 0;}
-        canvas { width: 100%; height: 100% }
-
-        .controls{
-            position: fixed;
-            left:0;
-            top:0;
-            bottom: 0;
-            width: 200px;
-            background: #ededed;
-            border-right: red solid 1px;
-        }
-        .board{
-            position: fixed;
-            left:201px;
-            top:0;
-            bottom: 0;
-            right: 0;
-
-        }
-    </style>
     <link rel="stylesheet" href="css/controls.css">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
 
     <script src="bower_components/three.js/build/three.js"></script>
     <script src="bower_components/three.js/examples/js/loaders/OBJLoader.js"></script>
@@ -40,22 +19,23 @@
     <div class="controls" id="controls">
         <camera-controls con-handler="cameraControlsHandler"></camera-controls>
 
-        <p>
-            <button onclick="ocultaGrid()">ocultar/mostrar grid</button>
-        </p>
-        <p>
-            <button onclick="ocultaWallGrid()">ocultar/mostrar wall grid</button>
-        </p>
 
         <ul>
             <li><a href="#" onclick="changeTileImage('assets/stone.jpg')"><img src="assets/stone.jpg" alt="tile"></a></li>
             <li><a href="#" onclick="changeTileImage('assets/crate2_diffuse.png')"><img src="assets/crate2_diffuse.png" alt="tile"></a></li>
         </ul>
+
     </div>
+
     <div class="board" id="board">
 
     </div>
 
+    <div class="topControlls">
+        <span ng-repeat="index in screenModes" >
+            <button  ng-click="changeMode(index)" ng-class="selectedScreenMode == index ? 'selected':'' ">{{index}}</button>
+        </span>
+    </div>
 
 </body>
 </html>

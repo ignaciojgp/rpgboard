@@ -84,10 +84,39 @@ function BoardController(element){
 
         }
     }
+    this.hideFloorGrid = function(){
+        for(var i in grid){
+            var obj = grid[i];
+            obj.visible = false;
+
+        }
+    }
+    this.showFloorGrid = function(){
+        for(var i in grid){
+            var obj = grid[i];
+            obj.visible = true;
+
+        }
+    }
+
     this.toggleWallGrid = function(){
         for(var i in wallGrid){
             var obj = wallGrid[i];
             obj.visible = !obj.visible;
+
+        }
+    }
+    this.hideWallGrid = function(){
+        for(var i in wallGrid){
+            var obj = wallGrid[i];
+            obj.visible = false;
+
+        }
+    }
+    this.showWallGrid = function(){
+        for(var i in wallGrid){
+            var obj = wallGrid[i];
+            obj.visible = true;
 
         }
     }
