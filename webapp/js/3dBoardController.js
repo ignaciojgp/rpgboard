@@ -10,10 +10,19 @@ function BoardController(element){
     camera.position.y = 5;
     camera.position.z = 5;
 
-    var renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     element.appendChild( renderer.domElement );
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+    }
+
+    window.addEventListener( 'resize', onWindowResize, false );
+
 
 
     var cameraangle = [0.5,0.5];
@@ -25,15 +34,13 @@ function BoardController(element){
     var wallGrid = [];
     var usertiles = [];
     var userWallTiles = [];
+    var userModels = [];
 
     var texture = new THREE.TextureLoader().load( 'assets/crate2_diffuse.png' );
     var cratematerial = new THREE.MeshBasicMaterial( { map: texture }  );
-    var gridTileMaterial = new THREE.MeshBasicMaterial( { color: 0xffaa00, wireframe: true } );
-    var gridWallTileMaterial = new THREE.MeshBasicMaterial( { color: 0xffFF66, wireframe: true } );
     var showFloodGrid = true;
 
     var manager = new THREE.LoadingManager();
-
 
 
     createTileMap(gridsize);
@@ -134,7 +141,11 @@ function BoardController(element){
 
         for(var i=0;i<size;i++){
             for(var j=0;j<size;j++){
+                var gridTileMaterial = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffddddff,  transparent: true , opacity:0.2, blending: THREE.AdditiveBlending } );
+                var gridWallTileMaterial = new THREE.MeshBasicMaterial( { color:Math.random() * 0xffffff,  transparent: true , opacity:0.2 , blending: THREE.AdditiveBlending} );
+
                 var cube = createTile(i,j,gridTileMaterial);
+                cube.position.y = -0.1;
                 grid.push(cube);
 
                 if(i==0){
@@ -236,15 +247,43 @@ function BoardController(element){
                     child.position.x = x;
                     child.position.z = y;
 
+                    userModels.push(child);
     			}
     		} );
-
-
-
     	}, null, null );
 
     }
+    this.deleteObject = function(obj){
+        var pos = scene.children.indexOf(obj);
+        if(pos != -1){
+            scene.remove(obj);
+
+            if(usertiles.indexOf(obj) != -1){
+                usertiles.splice(usertiles.indexOf(obj),1);
+            }
+            if(userWallTiles.indexOf(obj) != -1){
+                userWallTiles.splice(userWallTiles.indexOf(obj),1);
+            }
+            if(userModels.indexOf(obj) != -1){
+                userModels.splice(userModels.indexOf(obj),1);
+            }
+
+
+        }
+    }
     //interaction
+    this.moveObjectToPosition = function(obj,x,y){
+        obj.position.x = x;
+        obj.position.z = y;
+    }
+    this.rotateObjectByStep = function(obj,direction){
+        if(obj != null){
+            var rot = (2 * Math.PI) * 0.125;//step size
+
+            var angle = direction == "rr" ? angle = rot : -rot;
+            obj.rotation.y+=angle;
+        }
+    }
     this.clickInteractionWithCoods = function(x,y){
         this.onDocumentMouseDown(x,y);
     }
@@ -255,37 +294,29 @@ function BoardController(element){
         mouse.x = ( x / renderer.domElement.clientWidth ) * 2 - 1;
         mouse.y = - ( y / renderer.domElement.clientHeight ) * 2 + 1;
         raycaster.setFromCamera( mouse, camera );
+        var intersects = raycaster.intersectObjects( scene.children );
 
-        var tileIntersects = raycaster.intersectObjects( grid );
 
-        if ( tileIntersects.length > 0 ) {
-            var obj = tileIntersects[0].object;
-            var tileEvent = new CustomEvent('onTileClick', {"detail":obj});
+        var eventType = "onChildGenericClick";
+
+        if ( intersects.length > 0 ) {
+            var obj = intersects[0].object;
+
+            if(grid.indexOf(obj) != -1){
+                eventType = 'onTileClick';
+            }else if(usertiles.indexOf(obj) != -1){
+                eventType = 'onUserFloorTileClick';
+            }else if(wallGrid.indexOf(obj) != -1){
+                eventType = 'onWallTileClick';
+            }else if(userWallTiles.indexOf(obj) != -1){
+                eventType = 'onUserWallTileClick';
+            }else if(userModels.indexOf(obj) != -1){
+                eventType = 'onUserModelClick';
+            }
+
+            var tileEvent = new CustomEvent(eventType, {"detail":obj});
             domparent.dispatchEvent(tileEvent);
-        }
 
-        var userFloorTileIntersects = raycaster.intersectObjects( usertiles );
-
-        if ( userFloorTileIntersects.length > 0 ) {
-            var obj = userFloorTileIntersects[0].object;
-            var tileEvent = new CustomEvent('onUserFloorTileClick', {"detail":obj});
-            domparent.dispatchEvent(tileEvent);
-        }
-
-        var wallTileIntersects = raycaster.intersectObjects( wallGrid );
-
-        if ( wallTileIntersects.length > 0 ) {
-            var obj = wallTileIntersects[0].object;
-            var tileEvent = new CustomEvent('onWallTileClick', {"detail":obj});
-            domparent.dispatchEvent(tileEvent);
-        }
-
-        var userWallTileIntersects = raycaster.intersectObjects( userWallTiles );
-
-        if ( userWallTileIntersects.length > 0 ) {
-            var obj = userWallTileIntersects[0].object;
-            var tileEvent = new CustomEvent('onUserWallTileClick', {"detail":obj});
-            domparent.dispatchEvent(tileEvent);
         }
 
     }

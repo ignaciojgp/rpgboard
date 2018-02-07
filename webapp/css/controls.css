@@ -6,7 +6,7 @@ canvas { width: 100%; height: 100% }
     left:0;
     top:0;
     width: 200px;
-    background: #ededed;
+    background: rgba(0,0,0,0.5);
     border-right: red solid 1px;
     z-index: 100;
 }
@@ -22,7 +22,6 @@ canvas { width: 100%; height: 100% }
 .controlbox{
     margin: 10px;
     height: 170px;
-    background: #ccc;
 position: relative;;
 }
 .controlbox button{
@@ -80,8 +79,45 @@ position: absolute;
     position: fixed;
     top:1em;
     right: 1em;
+    text-align: right;
+    color: white;
 }
-
+.topControlls hr{
+    margin: 5px 0;
+    background: white;
+}
 .selected{
     font-weight: bold;
+}
+
+.toolsPanel{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.5);
+    padding: 1em;
+    color:white;
+}
+.toolsPanel ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.toolsPanel ul li{
+    list-style: none;
+    display: inline-block;
+    margin-right: 10px;
+}
+.toolsPanel ul li img{
+    max-height: 50px;
+}
+.modelControls{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+.modelControls img{
+    max-height: 30px;
+
 }

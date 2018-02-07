@@ -4,7 +4,6 @@
     <meta charset=utf-8>
     <title>My first three.js app</title>
     <link rel="stylesheet" href="css/controls.css">
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
 
     <script src="bower_components/three.js/build/three.js"></script>
     <script src="bower_components/three.js/examples/js/loaders/OBJLoader.js"></script>
@@ -12,19 +11,13 @@
     <script src="bower_components/angular/angular.js"></script>
 
     <script src="js/3dBoardController.js"></script>
+    <script src="js/constants.js"></script>
     <script src="js/app.js"></script>
     <script src="js/components/camera-controls.component.js"></script>
 </head>
 <body ng-controller="main-controller">
     <div class="controls" id="controls">
         <camera-controls con-handler="cameraControlsHandler"></camera-controls>
-
-
-        <ul>
-            <li><a href="#" onclick="changeTileImage('assets/stone.jpg')"><img src="assets/stone.jpg" alt="tile"></a></li>
-            <li><a href="#" onclick="changeTileImage('assets/crate2_diffuse.png')"><img src="assets/crate2_diffuse.png" alt="tile"></a></li>
-        </ul>
-
     </div>
 
     <div class="board" id="board">
@@ -35,6 +28,24 @@
         <span ng-repeat="index in screenModes" >
             <button  ng-click="changeMode(index)" ng-class="selectedScreenMode == index ? 'selected':'' ">{{index}}</button>
         </span>
+        <hr/>
+        {{submode}}
+    </div>
+    <div class="toolsPanel">
+        <ul>
+            <li ng-repeat="index in modeOptions">
+                <a ng-click="clickOnOption(index)">{{index}}</a>
+            </li>
+        </ul>
+        <ul>
+            <li><a href="#" onclick="changeTileImage('assets/stone.jpg')"><img src="assets/stone.jpg" alt="tile"></a></li>
+        </ul>
+        <div class="modelControls" ng-show="showModelControl">
+            <button ng-click="clickRotateButton('rl')" type="button" name="rl">
+                <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTY2NCAyNTZ2NDQ4cTAgMjYtMTkgNDV0LTQ1IDE5aC00NDhxLTQyIDAtNTktNDAtMTctMzkgMTQtNjlsMTM4LTEzOHEtMTQ4LTEzNy0zNDktMTM3LTEwNCAwLTE5OC41IDQwLjV0LTE2My41IDEwOS41LTEwOS41IDE2My41LTQwLjUgMTk4LjUgNDAuNSAxOTguNSAxMDkuNSAxNjMuNSAxNjMuNSAxMDkuNSAxOTguNSA0MC41cTExOSAwIDIyNS01MnQxNzktMTQ3cTctMTAgMjMtMTIgMTQgMCAyNSA5bDEzNyAxMzhxOSA4IDkuNSAyMC41dC03LjUgMjIuNXEtMTA5IDEzMi0yNjQgMjA0LjV0LTMyNyA3Mi41cS0xNTYgMC0yOTgtNjF0LTI0NS0xNjQtMTY0LTI0NS02MS0yOTggNjEtMjk4IDE2NC0yNDUgMjQ1LTE2NCAyOTgtNjFxMTQ3IDAgMjg0LjUgNTUuNXQyNDQuNSAxNTYuNWwxMzAtMTI5cTI5LTMxIDcwLTE0IDM5IDE3IDM5IDU5eiIvPjwvc3ZnPg==" /></button>
+            <button ng-click="clickRotateButton('rr')" type="button" name="rr">
+                <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTY2NCA4OTZxMCAxNTYtNjEgMjk4dC0xNjQgMjQ1LTI0NSAxNjQtMjk4IDYxcS0xNzIgMC0zMjctNzIuNXQtMjY0LTIwNC41cS03LTEwLTYuNS0yMi41dDguNS0yMC41bDEzNy0xMzhxMTAtOSAyNS05IDE2IDIgMjMgMTIgNzMgOTUgMTc5IDE0N3QyMjUgNTJxMTA0IDAgMTk4LjUtNDAuNXQxNjMuNS0xMDkuNSAxMDkuNS0xNjMuNSA0MC41LTE5OC41LTQwLjUtMTk4LjUtMTA5LjUtMTYzLjUtMTYzLjUtMTA5LjUtMTk4LjUtNDAuNXEtOTggMC0xODggMzUuNXQtMTYwIDEwMS41bDEzNyAxMzhxMzEgMzAgMTQgNjktMTcgNDAtNTkgNDBoLTQ0OHEtMjYgMC00NS0xOXQtMTktNDV2LTQ0OHEwLTQyIDQwLTU5IDM5LTE3IDY5IDE0bDEzMCAxMjlxMTA3LTEwMSAyNDQuNS0xNTYuNXQyODQuNS01NS41cTE1NiAwIDI5OCA2MXQyNDUgMTY0IDE2NCAyNDUgNjEgMjk4eiIvPjwvc3ZnPg==" /></button>
+        </div>
     </div>
 
 </body>

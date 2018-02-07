@@ -10,6 +10,7 @@ function mainController($scope,$http){
     var characterModel = 'assets/warrior.obj';
     var characterTexture = "assets/warrior_difuse.jpg";
 
+    //listener
     window.addEventListener( 'mousemove', onMouseMove, false );
     board.addEventListener( 'mousedown', onDocumentMouseDown, false );
     board.addEventListener( 'touchstart', onDocumentTouchStart, false );
@@ -18,37 +19,78 @@ function mainController($scope,$http){
     board.addEventListener( 'onTileClick', onTileClick, false );
     board.addEventListener( 'onWallTileClick', onWallTileClick, false );
     board.addEventListener( 'onUserFloorTileClick', onUserFloorTileClick, false );
+    board.addEventListener( 'onUserWallTileClick', onUserWallTileClick, false );
+    board.addEventListener( 'onUserModelClick', onUserModelClick, false );
 
     //modo de juego
-    $scope.screenModes = ["floor edition","wall edition","character edition","play mode"];
+    $scope.screenModes = [FLOOR_EDITION, WALL_EDITION, CHARACTER_EDITION, PLAY_MODE];
+    $scope.submode = null;
+    $scope.modeOptions = [];
     $scope.selectedScreenMode = null;
+    $scope.clickOnOption = function(option){
+        $scope.submode = option;
 
+        if($scope.selectedScreenMode == FLOOR_EDITION)
+        {
+            boardConcontroller.hideWallGrid();
+
+            if( $scope.submode == "add"){
+                boardConcontroller.showFloorGrid();
+            }else{
+                boardConcontroller.hideFloorGrid();
+            }
+        }
+
+        if($scope.selectedScreenMode == WALL_EDITION)
+        {
+            boardConcontroller.hideFloorGrid();
+
+            if( $scope.submode == "add"){
+                boardConcontroller.showWallGrid();
+            }else{
+                boardConcontroller.hideWallGrid();
+            }
+        }
+    }
 
     $scope.changeMode = function(value){
         $scope.selectedScreenMode = value;
-
+        $scope.showModelControl = false;
         switch ($scope.selectedScreenMode) {
             case "floor edition":
-                boardConcontroller.hideWallGrid();
-                boardConcontroller.showFloorGrid();
+                $scope.modeOptions = ["add","delete"];
                 break;
             case "wall edition":
-                boardConcontroller.showWallGrid();
-                boardConcontroller.hideFloorGrid();
+                $scope.modeOptions = ["add","delete"];
                 break;
             case "character edition":
                 boardConcontroller.hideFloorGrid();
                 boardConcontroller.hideWallGrid();
+                $scope.modeOptions = ["add","delete"];
                 break;
             case "play mode":
                 boardConcontroller.hideFloorGrid();
                 boardConcontroller.hideWallGrid();
+                $scope.modeOptions = ["rotate left","rotate right"];
+                $scope.showModelControl = true;
                 break;
             default:
 
         }
+
+        $scope.clickOnOption($scope.modeOptions[0]);
     }
-    $scope.changeMode("floor edition");
+    $scope.changeMode(FLOOR_EDITION);
+
+    $scope.showModelControl = false;
+    $scope.clickRotateButton = function(direction){
+        if($scope.playModelSelected != null){
+            var rot = (2 * Math.PI) * 0.125;
+
+            var angle = direction == "rr" ? angle = rot : -rot;
+            $scope.playModelSelected.rotation.y+=angle;
+        }
+    }
 
     boardConcontroller.rotateCamera([0,0]);
 
@@ -58,23 +100,49 @@ function mainController($scope,$http){
         });
 
     $scope.cameraControlsHandler = onClickControlCameraButton;
-
+    $scope.playModelSelected = null;
+    //grid assets events
     function onTileClick(event){
-
-        addTile(event.detail.position.x,event.detail.position.z);
-
+        if($scope.selectedScreenMode == FLOOR_EDITION && $scope.submode == "add"){
+            addTile(event.detail.position.x,event.detail.position.z);
+        }
     }
     function onWallTileClick(event){
         console.log(event.detail.position);
         addWallTile(event.detail.tilePosition.x,event.detail.tilePosition.z,event.detail.wallPosition);
     }
+
+    //user assets events
     function onUserFloorTileClick(event){
-        // console.log(event.detail.position);
-        // addTile(event.detail.position.x,event.detail.position.z);
-        if($scope.selectedScreenMode == "character edition"){
+        if($scope.selectedScreenMode == CHARACTER_EDITION && $scope.submode == "add")
+        {
             addWarrior(event.detail.position.x,event.detail.position.z);
+        }else if($scope.selectedScreenMode == FLOOR_EDITION && $scope.submode == "delete")
+        {
+            boardConcontroller.deleteObject(event.detail);
+        }else if($scope.selectedScreenMode == PLAY_MODE && $scope.playModelSelected != null)
+        {
+            boardConcontroller.moveObjectToPosition($scope.playModelSelected,event.detail.position.x,event.detail.position.z);
+            console.log("moving objet to position x:"+event.detail.position.x+" z:"+event.detail.position.z);
         }
     }
+    function onUserWallTileClick(event){
+        if($scope.selectedScreenMode == WALL_EDITION && $scope.submode == "delete")
+        {
+            boardConcontroller.deleteObject(event.detail);
+        }
+    }
+    function onUserModelClick(event){
+        if($scope.selectedScreenMode == CHARACTER_EDITION && $scope.submode == "delete"){
+            boardConcontroller.deleteObject(event.detail);
+        }
+        if($scope.selectedScreenMode == PLAY_MODE){
+            $scope.playModelSelected = event.detail;
+        }
+    }
+
+
+
     function addWarrior(x,y){
         boardConcontroller.addModel(characterModel,characterTexture,x,y);
 
