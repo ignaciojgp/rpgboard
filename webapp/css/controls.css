@@ -7,7 +7,6 @@ canvas { width: 100%; height: 100% }
     top:0;
     width: 200px;
     background: rgba(0,0,0,0.5);
-    border-right: red solid 1px;
     z-index: 100;
 }
 .board{
@@ -98,6 +97,13 @@ position: absolute;
     background: rgba(0,0,0,0.5);
     padding: 1em;
     color:white;
+}
+.toolsPanel .selection{
+    float: left;
+    margin-right: 1em;
+}
+.toolsPanel .selection img{
+    height: 100px;
 }
 .toolsPanel ul{
     list-style: none;

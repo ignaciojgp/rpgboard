@@ -29,18 +29,24 @@
             <button  ng-click="changeMode(index)" ng-class="selectedScreenMode == index ? 'selected':'' ">{{index}}</button>
         </span>
         <hr/>
+        <span ng-repeat="index in modeOptions">
+            <button ng-click="clickOnOption(index)">{{index}}</button>
+        </span>
+        <hr/>
         {{submode}}
     </div>
     <div class="toolsPanel">
-        {{playModelSelected.position}}
+        {{message}}
+        <hr>
+        <div class="selection">
+            <img ng-src="{{selectedResource.icon}}" alt="" ng-show="selectedResource">
+        </div>
         <ul>
-            <li ng-repeat="index in modeOptions">
-                <a ng-click="clickOnOption(index)">{{index}}</a>
+            <li ng-repeat="item in availableResources">
+                <a href="#" ng-click="changeSelectedResource(item)"><img ng-src="{{item.icon}}" alt="tile"></a>
             </li>
         </ul>
-        <ul>
-            <li><a href="#" onclick="changeTileImage('assets/stone.jpg')"><img src="assets/stone.jpg" alt="tile"></a></li>
-        </ul>
+
         <div class="modelControls" ng-show="showModelControls">
 
             <button ng-click="clickRotateButton('rl')" type="button" name="rl">

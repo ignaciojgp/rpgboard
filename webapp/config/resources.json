@@ -2,28 +2,39 @@
     "floorTiles":[
         {
             "name":"piedra",
-            "image":"stone.jgp"
+            "image":"assets/stone.jpg",
+            "icon":"assets/stone.jpg"
         },
         {
             "name":"madera",
-            "image":"crate2_diffuse.png"
+            "image":"assets/crate2_diffuse.png",
+            "icon":"assets/crate2_diffuse.png"
         }
     ],
     "wallTiles":[
         {
             "name":"piedra",
-            "image":"stone.jgp"
+            "image":"assets/stone.jpg",
+            "icon":"assets/stone.jpg"
         },
         {
             "name":"madera",
-            "image":"crate2_diffuse.png"
+            "image":"assets/crate2_diffuse.png",
+            "icon":"assets/crate2_diffuse.png"
         }
     ],
     "characterModels":[
         {
             "name":"warrior",
-            "geometry":"warior.obj",
-            "texture":"warrior_difuse.jpg"
+            "icon":"assets/crate2_diffuse.png",
+            "geometry":"assets/warrior.obj",
+            "texture":"assets/warrior_difuse.jpg"
+        },
+        {
+            "name":"dog",
+            "icon":"assets/crate2_diffuse.png",
+            "geometry":"assets/dog.obj",
+            "texture":"assets/dog_difuse.jpg"
         }
     ]
 
