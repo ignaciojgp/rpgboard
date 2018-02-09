@@ -7,6 +7,7 @@ function mainController($scope,$http){
     var characterModel = 'assets/warrior.obj';
     var characterTexture = "assets/warrior_difuse.jpg";
 
+    $scope.objs = {};
     $scope.selectedResource = null;
     $scope.boardConcontroller = null;
     $scope.availableResources = [];
@@ -183,7 +184,12 @@ function mainController($scope,$http){
             addModel(event.detail.position.x,event.detail.position.z);
         }else if($scope.selectedScreenMode == FLOOR_EDITION && $scope.submode == "delete")
         {
-            $scope.boardConcontroller.deleteObject(event.detail);
+            //            $scope.boardConcontroller.deleteObject(event.detail);
+            mapCommand({
+                "action":"delete",
+                "idObject":event.detail.mapObjectId
+            });
+
         }else if($scope.selectedScreenMode == PLAY_MODE && $scope.playModelSelected != null)
         {
             $scope.boardConcontroller.moveObjectToPosition($scope.playModelSelected,event.detail.position.x,event.detail.position.z);
@@ -193,12 +199,22 @@ function mainController($scope,$http){
     function onUserWallTileClick(event){
         if($scope.selectedScreenMode == WALL_EDITION && $scope.submode == "delete")
         {
-            $scope.boardConcontroller.deleteObject(event.detail);
+            //            $scope.boardConcontroller.deleteObject(event.detail);
+            mapCommand({
+                "action":"delete",
+                "idObject":event.detail.mapObjectId
+            });
+
         }
     }
     function onUserModelClick(event){
         if($scope.selectedScreenMode == CHARACTER_EDITION && $scope.submode == "delete"){
-            $scope.boardConcontroller.deleteObject(event.detail);
+            //            $scope.boardConcontroller.deleteObject(event.detail);
+            mapCommand({
+                "action":"delete",
+                "idObject":event.detail.mapObjectId
+            });
+
         }
         if($scope.selectedScreenMode == PLAY_MODE || $scope.selectedScreenMode == CHARACTER_EDITION ){
             $scope.$apply(function(){
@@ -212,28 +228,57 @@ function mainController($scope,$http){
         $scope.$apply(function(){
             $scope.playModelSelected = event.detail;
             $scope.showModelControls = true;
-
+            var obj = event.detail;
+            $scope.objs[obj.mapObjectId]["obj"] = obj;
+            //$scope.objs[obj.mapObjectId] = obj;
+            //propagar el evento en el socket
         })
     }
 
     //private methods
     function addTile(x,y){
         if($scope.selectedResource != null){
-            $scope.boardConcontroller.createTileWithTexture(x,y,$scope.selectedResource.image);
+            //$scope.boardConcontroller.createTileWithTexture(x,y,$scope.selectedResource.image);
+            mapCommand({
+                "action":"add",
+                "type":"floorTile",
+                "position":{"x":x,"y":y},
+                "textureURL":$scope.selectedResource.image
+            });
+
         }else{
             printMessage("select a resource in the toolbox",0);
         }
     }
     function addWallTile(x,y,pos){
         if($scope.selectedResource != null){
-            $scope.boardConcontroller.createWallTileWithTexture(x,y,pos,2,$scope.selectedResource.image)
+            //$scope.boardConcontroller.createWallTileWithTexture(x,y,pos,2,$scope.selectedResource.image)
+            mapCommand({
+                "action":"add",
+                "type":"wallTile",
+                "position":{"x":x,"y":y},
+                "textureURL":$scope.selectedResource.image,
+                "orientation":pos,
+                "height":2
+            });
+
         }else{
             printMessage("select a resource in the toolbox",0);
         }
     }
     function addModel(x,y){
         if($scope.selectedResource != null){
-            var model = $scope.boardConcontroller.addModel($scope.selectedResource.geometry,$scope.selectedResource.texture,x,y);
+            //$scope.boardConcontroller.addModel($scope.selectedResource.geometry,$scope.selectedResource.texture,x,y);
+
+            mapCommand({
+                "action":"add",
+                "type":"model",
+                "position":{"x":x,"y":y},
+                "geometryURL":$scope.selectedResource.geometry,
+                "textureURL":$scope.selectedResource.texture,
+                "rotation":0
+            });
+
         }else{
             printMessage("select a resource in the toolbox",0);
         }
@@ -282,4 +327,98 @@ function mainController($scope,$http){
         $scope.textureIMG = texture;
     }
 
+    function mapCommand(command){
+        switch (command.action) {
+            case "add":
+
+                if(command.idObject == null || $scope.objs[command.idObject] == null){
+
+                    if(command.idObject == null){
+                        command.idObject = guid();
+                    }
+
+                    //se agrega el objeto
+                    switch (command.type) {
+                        case "floorTile":
+                            var tile = $scope.boardConcontroller.createTileWithTexture(
+                                command.position.x,
+                                command.position.y,
+                                command.textureURL,
+                                command.idObject);
+                            $scope.objs[command.idObject] =
+                                {
+                                    "obj":tile,
+                                    "type":"floorTile",
+                                    "position":command.position,
+                                    "textureURL":command.textureURL,
+                                    "idObject":command.idObject
+                                };
+
+                            //propagar el evento en el socket
+                            break;
+
+                        case "wallTile":
+                            var tile = $scope.boardConcontroller.createWallTileWithTexture(
+                                command.position.x,
+                                command.position.y,
+                                command.orientation,
+                                command.height,
+                                command.textureURL,
+                                command.idObject);
+                            $scope.objs[command.idObject] = {
+                                "obj":tile,
+                                "type":"wallTile",
+                                "position":command.position,
+                                "textureURL":command.textureURL,
+                                "idObject":command.idObject,
+                                "height":command.height,
+                                "orientation":command.orientation
+                            };
+                            //propagar el evento en el socket
+                            break;
+
+                        case "model":
+                            $scope.boardConcontroller.addModel(
+                                command.geometryURL,
+                                command.textureURL,
+                                command.position.x,
+                                command.position.y,
+                                command.rotation,
+                                command.idObject);
+                            //el obj se asigna en el evento onModelAdded
+                            $scope.objs[command.idObject] = {
+                                "type":"model",
+                                "position":command.position,
+                                "textureURL":command.textureURL,
+                                "geometryURL":command.geometryURL,
+                                "rotation":command.rotation,
+                                "idObject":command.idObject,
+                            };
+                            break;
+
+                    }
+                    console.log("add obj with id:"+command.idObject);
+
+                }else{
+                    //ya ha sido agregado
+                    console.log("ya se ha agregado");
+                }
+
+                break;
+            case "move":
+                break;
+            case "rotate":
+                break;
+            case "delete":
+                var objToDelete = $scope.objs[command.idObject];
+                if(objToDelete!= null){
+                    $scope.boardConcontroller.deleteObject(objToDelete);
+                    console.log("delete obj with id:"+command.idObject);
+                }
+
+                break;
+            default:
+
+        }
+    }
 }

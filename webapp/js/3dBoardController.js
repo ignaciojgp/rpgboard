@@ -216,20 +216,27 @@ function BoardController(element){
         return cube;
     }
 
-    this.createTileWithTexture = function(x,z,textureIMG){
+    this.createTileWithTexture = function(x,z,textureIMG,id){
         var texture = new THREE.TextureLoader().load( textureIMG );
         var customMaterial = new THREE.MeshBasicMaterial( { map: texture }  );
         var usertile = createTile(x,z,customMaterial);
+
         usertiles.push(usertile);
+        usertile.mapObjectId = id;
+        return usertile;
     }
-    this.createWallTileWithTexture = function(x,z,pos,height,textureIMG){
+    this.createWallTileWithTexture = function(x,z,pos,height,textureIMG,id){
         var texture = new THREE.TextureLoader().load( textureIMG );
         var customMaterial = new THREE.MeshBasicMaterial( { map: texture }  );
         var usertile = createWallTile(x,z,pos,height,customMaterial);
+
+        usertile.mapObjectId = id;
+
         userWallTiles.push(usertile);
+        return usertile;
     }
 
-    this.addModel = function(objURL,textureURL,x,y){
+    this.addModel = function(objURL,textureURL,x,y,rotation,id){
         var textureLoader = new THREE.TextureLoader( manager );
         var loader = new THREE.OBJLoader( manager );
         var model = null;
@@ -246,11 +253,14 @@ function BoardController(element){
 
                     child.position.x = x;
                     child.position.z = y;
+                    child.rotation.y = rotation;
+                    child.mapObjectId = id;
 
                     userModels.push(child);
-
                     var event = new CustomEvent("onModelAdded", {"detail":child});
                     domparent.dispatchEvent(event);
+
+
     			}
     		} );
     	}, null, null );
