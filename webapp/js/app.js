@@ -78,6 +78,12 @@ function mainController($scope,$http){
             case 68:
             cameraAction("rr");
             break;
+            case 80://p
+            exportMap();
+            break;
+            case 73://i
+            importMap();
+            break;
 
         }
     }
@@ -437,7 +443,7 @@ function mainController($scope,$http){
                         command.destination.y
                     );
 
-                    objToMove.rotation = command.rotation
+                    objToMove.position = command.destination
 
                     //propagar el evento
 
@@ -476,6 +482,47 @@ function mainController($scope,$http){
                 break;
             default:
 
+        }
+    }
+
+    function exportMap(){
+        $scope.$apply(function(){
+
+            var output = [];
+
+            for(var i in $scope.objs){
+                var newObj = JSON.parse(JSON.stringify($scope.objs[i]));
+                newObj.idObject = i;
+                delete newObj.obj;
+
+                output.push(newObj);
+            }
+
+            $scope.exportOutput =JSON.stringify(output);
+        });
+    }
+
+    function importMap(){
+
+        clearMap();
+
+        var info = JSON.parse($scope.exportOutput);
+
+        for(var i in info){
+            var command = info[i];
+            command.action = "add";
+
+            mapCommand(command);
+        }
+
+    }
+
+    function clearMap(){
+        for(var i in $scope.objs){
+            mapCommand({
+                "action":"delete",
+                "idObject":i
+            });
         }
     }
 }
