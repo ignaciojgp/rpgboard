@@ -297,6 +297,11 @@ function BoardController(element){
             obj.rotation.y+=angle;
         }
     }
+
+    this.rotateObject = function(obj,angle){
+        obj.rotation.y=angle;
+    }
+
     this.clickInteractionWithCoods = function(x,y){
         this.onDocumentMouseDown(x,y);
     }

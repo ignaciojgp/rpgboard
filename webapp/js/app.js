@@ -157,9 +157,7 @@ function mainController($scope,$http){
         }
     }
     function clickRotateButton(direction){
-        if($scope.playModelSelected != null){
-            $scope.boardConcontroller.rotateObjectByStep($scope.playModelSelected,direction);
-        }
+        rotateModel(direction);
     }
     function onClickControlCameraButton(sender){
         cameraAction(sender);
@@ -192,8 +190,17 @@ function mainController($scope,$http){
 
         }else if($scope.selectedScreenMode == PLAY_MODE && $scope.playModelSelected != null)
         {
-            $scope.boardConcontroller.moveObjectToPosition($scope.playModelSelected,event.detail.position.x,event.detail.position.z);
-            console.log("moving objet to position x:"+event.detail.position.x+" z:"+event.detail.position.z);
+            //$scope.boardConcontroller.moveObjectToPosition(
+            // $scope.playModelSelected,
+            // event.detail.position.x,
+            // event.detail.position.z);
+            mapCommand({
+                "action":"move",
+                "idObject":$scope.playModelSelected.mapObjectId,
+                "origin":{"x":$scope.playModelSelected.position.x,"y":$scope.playModelSelected.position.z},
+                "destination":{"x":event.detail.position.x,"y":event.detail.position.z}
+            });
+
         }
     }
     function onUserWallTileClick(event){
@@ -283,7 +290,21 @@ function mainController($scope,$http){
             printMessage("select a resource in the toolbox",0);
         }
     }
+    function rotateModel(direction){
+        if($scope.playModelSelected != null){
+            //$scope.boardConcontroller.rotateObjectByStep($scope.playModelSelected,direction);
+            var rot = (2 * Math.PI) * 0.125;//step size
+            var angle = direction == "rr" ? angle = rot : -rot;
+            var finalAngle = $scope.playModelSelected.rotation.y+=angle;
 
+            mapCommand({
+                "action":"rotate",
+                "idObject":$scope.playModelSelected.mapObjectId,
+                "angle":finalAngle
+            });
+
+        }
+    }
     function printMessage(message,type){
         $scope.$apply(function(){
             $scope.message = message;
@@ -406,14 +427,50 @@ function mainController($scope,$http){
 
                 break;
             case "move":
+                var objToMove = $scope.objs[command.idObject];
+                if(objToMove!= null && (objToMove.rotation != command.destination.x || objToMove.position.y != command.destination.y)){
+                    //$scope.boardConcontroller.deleteObject(objToMove);
+                    console.log("move obj with id:"+command.idObject);
+                    $scope.boardConcontroller.moveObjectToPosition(
+                        objToMove.obj,
+                        command.destination.x,
+                        command.destination.y
+                    );
+
+                    objToMove.rotation = command.rotation
+
+                    //propagar el evento
+
+                }else{
+                    console.log("comando ignorado: "+command );
+                }
+
                 break;
             case "rotate":
+                var objToRotate = $scope.objs[command.idObject];
+                if(objToRotate!= null && objToRotate.rotation != command.angle){
+                    //$scope.boardConcontroller.deleteObject(objToRotate);
+                    console.log("rotate obj with id:"+command.idObject);
+                    $scope.boardConcontroller.rotateObject(objToRotate.obj,command.angle);
+                    objToRotate.rotation = command.angle;
+                    //propagar el evento
+
+                }else{
+                    console.log("comando ignorado: "+command );
+                }
+
+
                 break;
             case "delete":
                 var objToDelete = $scope.objs[command.idObject];
                 if(objToDelete!= null){
-                    $scope.boardConcontroller.deleteObject(objToDelete);
+
+                    $scope.boardConcontroller.deleteObject(objToDelete.obj);
+                    delete $scope.objs[command.idObject];
                     console.log("delete obj with id:"+command.idObject);
+
+                    //propagar el evento
+
                 }
 
                 break;
