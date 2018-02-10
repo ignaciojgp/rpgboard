@@ -9,52 +9,57 @@
     <script src="bower_components/three.js/examples/js/loaders/OBJLoader.js"></script>
 
     <script src="bower_components/angular/angular.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 
-    <script src="js/3dBoardController.js"></script>
+    <script src="js/controllers/3dBoard.Controller.js"></script>
+    <script src="js/controllers/map.Controller.js"></script>
+    <script src="js/services/socket.service.js"></script>
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/app.js"></script>
     <script src="js/components/camera-controls.component.js"></script>
 </head>
-<body ng-controller="main-controller">
-    <div class="controls" id="controls">
-        <camera-controls con-handler="cameraControlsHandler"></camera-controls>
-        <textarea name="name" rows="20" cols="25" ng-model="exportOutput"></textarea>
-    </div>
-
-    <div class="board" id="board">
-
-    </div>
-
-    <div class="topControlls">
-        <span ng-repeat="index in screenModes" >
-            <button  ng-click="changeMode(index)" ng-class="selectedScreenMode == index ? 'selected':'' ">{{index}}</button>
-        </span>
-        <hr/>
-        <span ng-repeat="index in modeOptions">
-            <button ng-click="clickOnOption(index)">{{index}}</button>
-        </span>
-        <hr/>
-        {{submode}}
-    </div>
-    <div class="toolsPanel">
-        {{message}}
-        <hr>
-        <div class="selection">
-            <img ng-src="{{selectedResource.icon}}" alt="" ng-show="selectedResource">
+<body ng-controller="app-controller">
+    <div class="mapcontroller" ng-controller="map-controller" >
+        <div class="controls" id="controls">
+            <camera-controls con-handler="cameraControlsHandler"></camera-controls>
+            <textarea name="name" rows="20" cols="25" ng-model="exportOutput"></textarea>
         </div>
-        <ul>
-            <li ng-repeat="item in availableResources">
-                <a href="#" ng-click="changeSelectedResource(item)"><img ng-src="{{item.icon}}" alt="tile"></a>
-            </li>
-        </ul>
 
-        <div class="modelControls" ng-show="showModelControls">
+        <div class="board" id="board">
 
-            <button ng-click="clickRotateButton('rl')" type="button" name="rl">
-                <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTY2NCAyNTZ2NDQ4cTAgMjYtMTkgNDV0LTQ1IDE5aC00NDhxLTQyIDAtNTktNDAtMTctMzkgMTQtNjlsMTM4LTEzOHEtMTQ4LTEzNy0zNDktMTM3LTEwNCAwLTE5OC41IDQwLjV0LTE2My41IDEwOS41LTEwOS41IDE2My41LTQwLjUgMTk4LjUgNDAuNSAxOTguNSAxMDkuNSAxNjMuNSAxNjMuNSAxMDkuNSAxOTguNSA0MC41cTExOSAwIDIyNS01MnQxNzktMTQ3cTctMTAgMjMtMTIgMTQgMCAyNSA5bDEzNyAxMzhxOSA4IDkuNSAyMC41dC03LjUgMjIuNXEtMTA5IDEzMi0yNjQgMjA0LjV0LTMyNyA3Mi41cS0xNTYgMC0yOTgtNjF0LTI0NS0xNjQtMTY0LTI0NS02MS0yOTggNjEtMjk4IDE2NC0yNDUgMjQ1LTE2NCAyOTgtNjFxMTQ3IDAgMjg0LjUgNTUuNXQyNDQuNSAxNTYuNWwxMzAtMTI5cTI5LTMxIDcwLTE0IDM5IDE3IDM5IDU5eiIvPjwvc3ZnPg==" /></button>
-            <button ng-click="clickRotateButton('rr')" type="button" name="rr">
-                <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTY2NCA4OTZxMCAxNTYtNjEgMjk4dC0xNjQgMjQ1LTI0NSAxNjQtMjk4IDYxcS0xNzIgMC0zMjctNzIuNXQtMjY0LTIwNC41cS03LTEwLTYuNS0yMi41dDguNS0yMC41bDEzNy0xMzhxMTAtOSAyNS05IDE2IDIgMjMgMTIgNzMgOTUgMTc5IDE0N3QyMjUgNTJxMTA0IDAgMTk4LjUtNDAuNXQxNjMuNS0xMDkuNSAxMDkuNS0xNjMuNSA0MC41LTE5OC41LTQwLjUtMTk4LjUtMTA5LjUtMTYzLjUtMTYzLjUtMTA5LjUtMTk4LjUtNDAuNXEtOTggMC0xODggMzUuNXQtMTYwIDEwMS41bDEzNyAxMzhxMzEgMzAgMTQgNjktMTcgNDAtNTkgNDBoLTQ0OHEtMjYgMC00NS0xOXQtMTktNDV2LTQ0OHEwLTQyIDQwLTU5IDM5LTE3IDY5IDE0bDEzMCAxMjlxMTA3LTEwMSAyNDQuNS0xNTYuNXQyODQuNS01NS41cTE1NiAwIDI5OCA2MXQyNDUgMTY0IDE2NCAyNDUgNjEgMjk4eiIvPjwvc3ZnPg==" /></button>
+        </div>
+
+        <div class="topControlls">
+            <span ng-repeat="index in screenModes" >
+                <button  ng-click="changeMode(index)" ng-class="selectedScreenMode == index ? 'selected':'' ">{{index}}</button>
+            </span>
+            <hr/>
+            <span ng-repeat="index in modeOptions">
+                <button ng-click="clickOnOption(index)">{{index}}</button>
+            </span>
+            <hr/>
+            {{submode}}
+        </div>
+        <div class="toolsPanel">
+            {{message}}
+            <hr>
+            <div class="selection">
+                <img ng-src="{{selectedResource.icon}}" alt="" ng-show="selectedResource">
+            </div>
+            <ul>
+                <li ng-repeat="item in availableResources">
+                    <a href="#" ng-click="changeSelectedResource(item)"><img ng-src="{{item.icon}}" alt="tile"></a>
+                </li>
+            </ul>
+
+            <div class="modelControls" ng-show="showModelControls">
+
+                <button ng-click="clickRotateButton('rl')" type="button" name="rl">
+                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTY2NCAyNTZ2NDQ4cTAgMjYtMTkgNDV0LTQ1IDE5aC00NDhxLTQyIDAtNTktNDAtMTctMzkgMTQtNjlsMTM4LTEzOHEtMTQ4LTEzNy0zNDktMTM3LTEwNCAwLTE5OC41IDQwLjV0LTE2My41IDEwOS41LTEwOS41IDE2My41LTQwLjUgMTk4LjUgNDAuNSAxOTguNSAxMDkuNSAxNjMuNSAxNjMuNSAxMDkuNSAxOTguNSA0MC41cTExOSAwIDIyNS01MnQxNzktMTQ3cTctMTAgMjMtMTIgMTQgMCAyNSA5bDEzNyAxMzhxOSA4IDkuNSAyMC41dC03LjUgMjIuNXEtMTA5IDEzMi0yNjQgMjA0LjV0LTMyNyA3Mi41cS0xNTYgMC0yOTgtNjF0LTI0NS0xNjQtMTY0LTI0NS02MS0yOTggNjEtMjk4IDE2NC0yNDUgMjQ1LTE2NCAyOTgtNjFxMTQ3IDAgMjg0LjUgNTUuNXQyNDQuNSAxNTYuNWwxMzAtMTI5cTI5LTMxIDcwLTE0IDM5IDE3IDM5IDU5eiIvPjwvc3ZnPg==" /></button>
+                <button ng-click="clickRotateButton('rr')" type="button" name="rr">
+                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTY2NCA4OTZxMCAxNTYtNjEgMjk4dC0xNjQgMjQ1LTI0NSAxNjQtMjk4IDYxcS0xNzIgMC0zMjctNzIuNXQtMjY0LTIwNC41cS03LTEwLTYuNS0yMi41dDguNS0yMC41bDEzNy0xMzhxMTAtOSAyNS05IDE2IDIgMjMgMTIgNzMgOTUgMTc5IDE0N3QyMjUgNTJxMTA0IDAgMTk4LjUtNDAuNXQxNjMuNS0xMDkuNSAxMDkuNS0xNjMuNSA0MC41LTE5OC41LTQwLjUtMTk4LjUtMTA5LjUtMTYzLjUtMTYzLjUtMTA5LjUtMTk4LjUtNDAuNXEtOTggMC0xODggMzUuNXQtMTYwIDEwMS41bDEzNyAxMzhxMzEgMzAgMTQgNjktMTcgNDAtNTkgNDBoLTQ0OHEtMjYgMC00NS0xOXQtMTktNDV2LTQ0OHEwLTQyIDQwLTU5IDM5LTE3IDY5IDE0bDEzMCAxMjlxMTA3LTEwMSAyNDQuNS0xNTYuNXQyODQuNS01NS41cTE1NiAwIDI5OCA2MXQyNDUgMTY0IDE2NCAyNDUgNjEgMjk4eiIvPjwvc3ZnPg==" /></button>
+            </div>
         </div>
     </div>
 

@@ -26,13 +26,13 @@
     "characterModels":[
         {
             "name":"warrior",
-            "icon":"assets/crate2_diffuse.png",
+            "icon":"assets/warrior_icon.jpg",
             "geometry":"assets/warrior.obj",
             "texture":"assets/warrior_difuse.jpg"
         },
         {
             "name":"dog",
-            "icon":"assets/crate2_diffuse.png",
+            "icon":"assets/dog_icon.jpg",
             "geometry":"assets/dog.obj",
             "texture":"assets/dog_difuse.jpg"
         }
