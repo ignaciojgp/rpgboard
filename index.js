@@ -17,13 +17,21 @@ var registryBook= {};
 
 io.on('connection', function(socket){
   console.log('a user connected');
+
+  socket.on("joinRoom",function(args){
+     socket.join(args);
+  });
+
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
 
-  socket.on('newMap',function(args){
-
+  socket.on('mapCommand',function(args){
+      registryBook[args.mapID] = args.finalResult;
+      io.sockets.in(args.mapID).emit("mapCommand",args);
+      console.log("command for map "+args.mapID);
   });
+
 });//
 
 
@@ -32,7 +40,7 @@ app.post("/api/map/register",function(req,res){
     var id = uuidv1();
     registryBook[id] = req.body;
     res.send(id);
-    console.log(registryBook);
+    // console.log(registryBook);
 });
 
 app.get("/api/map",function(req,res){
