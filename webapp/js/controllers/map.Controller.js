@@ -41,6 +41,7 @@ function mapController($scope,$http){
         document.addEventListener("keydown", keyDown, false);
         window.addEventListener( 'mousemove', onMouseMove, false );
         board.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        board.addEventListener( 'mouseup', onDocumentMouseUp, false );
         board.addEventListener( 'touchstart', onDocumentTouchStart, false );
 
         board.addEventListener( 'onTileClick', onTileClick, false );
@@ -111,13 +112,29 @@ function mapController($scope,$http){
     function onMouseMove(event){
         event.preventDefault();
         var rotation = [0,0];
+        if($scope.dragging){
+
+            console.log(event);
+        }
         rotation[0] = event.clientX / window.innerWidth;
         rotation[1] = event.clientY / window.innerHeight;
-        //$scope.boardConcontroller.rotateCamera(rotation);
+
+        if(event.shiftKey && $scope.dragging){
+            $scope.boardConcontroller.rotateCamera(rotation);
+        }
     }
     function onDocumentMouseDown( event ) {
         event.preventDefault();
-        $scope.boardConcontroller.clickInteractionWithCoods( event.offsetX,event.offsetY );
+        if(event.button == 0){
+            $scope.boardConcontroller.clickInteractionWithCoods( event.offsetX,event.offsetY );
+        }else if(event.button == 1){
+            $scope.dragging = true;
+        }
+
+    }
+
+    function onDocumentMouseUp(event){
+        $scope.dragging = false;
     }
     function onDocumentTouchStart( event ) {
         event.preventDefault();
