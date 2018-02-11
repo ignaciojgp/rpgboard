@@ -59,11 +59,15 @@ function mapController($scope,$http){
         $scope.selectedResource = newValue[0];
     });
     $scope.$on("beginExport", function(event,args){
-         $scope.exportMap();
+         var result = $scope.exportMap();
+
+         $scope.$emit("exportEndResult",result);
     });
 
     $scope.$on("onExternalCommand", function(event,args){
-         mapCommand(args);
+        $scope.allowBroadcast = false;
+        mapCommand(args);
+        $scope.allowBroadcast = true;
     });
 
     $scope.$on("updateRequest", function(event,args){
@@ -529,9 +533,6 @@ function mapController($scope,$http){
 
     function exportMap(){
 
-
-
-
         var output = [];
 
         for(var i in $scope.objs){
@@ -543,9 +544,6 @@ function mapController($scope,$http){
         }
 
         $scope.exportOutput =JSON.stringify(output);
-
-
-
 
         return $scope.exportOutput;
 

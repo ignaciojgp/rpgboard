@@ -26,10 +26,21 @@ io.on('connection', function(socket){
     console.log('user disconnected');
   });
 
+  //map command
   socket.on('mapCommand',function(args){
       registryBook[args.mapID] = args.finalResult;
       io.sockets.in(args.mapID).emit("mapCommand",args);
       console.log("command for map "+args.mapID);
+  });
+
+  //getting last version of map
+  socket.on("lastMapRequest",function(args){
+      console.log("map requested");
+      io.sockets.in(args.mapID).emit("lastMapRequest",args);
+  });
+  socket.on("lastMapResponse",function(args){
+      console.log("map responded");
+      io.sockets.in(args.mapID).emit("lastMapResponse",args);
   });
 
 });//
