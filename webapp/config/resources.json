@@ -1,6 +1,21 @@
 {
     "floorTiles":[
         {
+            "name":"madera",
+            "image":"assets/floor-tile-wood-001.jpg",
+            "icon":"assets/floor-tile-wood-001.jpg"
+        },
+        {
+            "name":"pasto",
+            "image":"assets/floor-tile-grass-001.jpg",
+            "icon":"assets/floor-tile-grass-001.jpg"
+        },
+        {
+            "name":"suelo",
+            "image":"assets/floor-tile-ground-001.jpg",
+            "icon":"assets/floor-tile-ground-001.jpg"
+        },
+        {
             "name":"piedra",
             "image":"assets/stone.jpg",
             "icon":"assets/stone.jpg"
@@ -13,6 +28,11 @@
     ],
     "wallTiles":[
         {
+            "name":"madera",
+            "image":"assets/floor-tile-wood-001.jpg",
+            "icon":"assets/floor-tile-wood-001.jpg"
+        },
+        {
             "name":"piedra",
             "image":"assets/stone.jpg",
             "icon":"assets/stone.jpg"
@@ -21,6 +41,11 @@
             "name":"madera",
             "image":"assets/crate2_diffuse.png",
             "icon":"assets/crate2_diffuse.png"
+        },
+        {
+            "name":"puerta",
+            "image":"assets/wall-tile-door-01.jpg",
+            "icon":"assets/wall-tile-door-01.jpg"
         }
     ],
     "characterModels":[

@@ -14,7 +14,7 @@ function mapController($scope,$http){
     //modo de juego
     $scope.playModelSelected = null;
     $scope.allowBroadcast = true;
-    $scope.screenModes = [FLOOR_EDITION, WALL_EDITION, CHARACTER_EDITION, PLAY_MODE];
+    $scope.screenModes = [FLOOR_EDITION, WALL_EDITION, CHARACTER_EDITION ,PLAY_MODE];
     $scope.submode = null;
     $scope.modeOptions = [];
     $scope.selectedScreenMode = null;
@@ -54,7 +54,7 @@ function mapController($scope,$http){
 
         $scope.boardConcontroller.rotateCamera([0,0]);
 
-        changeMode(FLOOR_EDITION);
+        changeMode(PLAY_MODE);
     }
 
     $scope.$watch("availableResources",function(newValue,oldValue){
@@ -135,10 +135,10 @@ function mapController($scope,$http){
             rotation[1] = $scope.dragging[1] - eventcoords[1];
             $scope.dragging = eventcoords;
             if(event.shiftKey){
-                $scope.boardConcontroller.rotateCamera(rotation);
-            }else{
                 $scope.boardConcontroller.trackCamera(rotation[0]*1.4);
                 $scope.boardConcontroller.dollyCamera(rotation[1]);
+            }else{
+                $scope.boardConcontroller.rotateCamera(rotation);
             }
         }
     }
