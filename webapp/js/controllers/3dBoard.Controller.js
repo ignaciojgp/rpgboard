@@ -2,6 +2,7 @@ function BoardController(element){
 
     var gridsize = 20;
     var domparent = element;
+    var cameraRotation = 0;
 
     var scene = new THREE.Scene();
     scene.background = new THREE.Color(0x222222);
@@ -52,13 +53,16 @@ function BoardController(element){
 
     //view control
     this.rotateLeft = function(){
-        cameraangle[0]+=0.01;
-        this.rotateCamera(cameraangle);
+
+        this.rotateCamera([-0.025,0]);
     }
     this.rotateRight = function(speed){
-        cameraangle[0]-=speed;
-        this.rotateCamera(cameraangle);
+
+        this.rotateCamera([0.025,0]);
     }
+
+
+
     this.moveForward = function(speed){
 
         var displacement = camera.position.clone().sub(cameratarget);
@@ -75,13 +79,24 @@ function BoardController(element){
         cameratarget.add(displacement);
         camera.position.add(displacement);
     }
-    this.trackLeft = function(speed){
-        cameratarget.x+=speed;
-        this.rotateCamera(cameraangle);
+    this.trackCamera = function(speed){
+
+        var displacement = camera.position.clone().sub(cameratarget);
+        displacement.y = 0;
+        displacement.multiply(new THREE.Vector3(speed,0,speed));
+        displacement.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI*0.5);
+        cameratarget.add(displacement);
+        camera.position.add(displacement);
     }
-    this.trackRight = function(speed){
-        cameratarget.x-=speed;
-        this.rotateCamera(cameraangle);
+
+    this.dollyCamera = function(speed){
+
+        var displacement = camera.position.clone().sub(cameratarget);
+        displacement.y=0;
+        displacement.multiply(new THREE.Vector3(speed,0,speed));
+        cameratarget.add(displacement);
+        camera.position.add(displacement);
+
     }
 
     this.toggleFlootGrid = function(){
@@ -129,12 +144,24 @@ function BoardController(element){
     }
 
     this.rotateCamera = function(rotation) {
-        cameraangle = rotation;
-        camera.position.x =( Math.sin(2 * Math.PI * (cameraangle[0] - .5)) * camerazoom) + cameratarget.x;
-        camera.position.z =( Math.cos(2 * Math.PI * (cameraangle[0] - .5)) * camerazoom) + cameratarget.z;
+        cameraRotation = cameraRotation-(rotation[0] * -0.5);
+        //camerazoom = camerazoom - (rotation[1] * 10);
+
+        camera.position.x =( Math.sin(2 * Math.PI * (cameraRotation - .5)) * camerazoom) + cameratarget.x;
+        camera.position.z =( Math.cos(2 * Math.PI * (cameraRotation - .5)) * camerazoom) + cameratarget.z;
         camera.lookAt(cameratarget);
     }
+    this.cameraZoom = function(delta) {
+        camera.position.y -= delta;
 
+        if(camera.position.y < 1){
+            camera.position.y = 1;
+        }else if(camera.position.y > 20)
+        {
+            camera.position.y = 20;
+        }
+        camera.lookAt(cameratarget);
+    }
 
     //object creation
     function createTileMap(size){

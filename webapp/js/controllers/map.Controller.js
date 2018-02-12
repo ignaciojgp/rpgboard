@@ -40,6 +40,7 @@ function mapController($scope,$http){
         //listener
         document.addEventListener("keydown", keyDown, false);
         window.addEventListener( 'mousemove', onMouseMove, false );
+        window.addEventListener( 'mousewheel', onMouseWheel, false );
         board.addEventListener( 'mousedown', onDocumentMouseDown, false );
         board.addEventListener( 'mouseup', onDocumentMouseUp, false );
         board.addEventListener( 'touchstart', onDocumentTouchStart, false );
@@ -82,10 +83,16 @@ function mapController($scope,$http){
         var keyCode = e.keyCode;
 
         switch (keyCode) {
+            case 38:
+            cameraAction("up");
+            break;
             case 87:
             cameraAction("up");
             break;
             case 83:
+            cameraAction("down");
+            break;
+            case 40:
             cameraAction("down");
             break;
             case 37:
@@ -95,9 +102,15 @@ function mapController($scope,$http){
             cameraAction("right");
             break;
             case 65:
-            cameraAction("rl");
+            cameraAction("left");
             break;
             case 68:
+            cameraAction("right");
+            break;
+            case 81:
+            cameraAction("rl");
+            break;
+            case 69:
             cameraAction("rr");
             break;
             case 80://p
@@ -111,16 +124,22 @@ function mapController($scope,$http){
     }
     function onMouseMove(event){
         event.preventDefault();
+        var eventcoords = [0,0];
         var rotation = [0,0];
+
+        eventcoords[0] = event.clientX / window.innerWidth;
+        eventcoords[1] = event.clientY / window.innerHeight;
+
         if($scope.dragging){
-
-            console.log(event);
-        }
-        rotation[0] = event.clientX / window.innerWidth;
-        rotation[1] = event.clientY / window.innerHeight;
-
-        if(event.shiftKey && $scope.dragging){
-            $scope.boardConcontroller.rotateCamera(rotation);
+            rotation[0] = $scope.dragging[0] - eventcoords[0];
+            rotation[1] = $scope.dragging[1] - eventcoords[1];
+            $scope.dragging = eventcoords;
+            if(event.shiftKey){
+                $scope.boardConcontroller.rotateCamera(rotation);
+            }else{
+                $scope.boardConcontroller.trackCamera(rotation[0]*1.4);
+                $scope.boardConcontroller.dollyCamera(rotation[1]);
+            }
         }
     }
     function onDocumentMouseDown( event ) {
@@ -128,13 +147,22 @@ function mapController($scope,$http){
         if(event.button == 0){
             $scope.boardConcontroller.clickInteractionWithCoods( event.offsetX,event.offsetY );
         }else if(event.button == 1){
-            $scope.dragging = true;
+            var coords = [];
+            coords[0] = event.clientX / window.innerWidth;
+            coords[1] = event.clientY / window.innerHeight;
+
+            $scope.dragging = coords;
         }
 
     }
 
+
+    function onMouseWheel(event){
+        $scope.boardConcontroller.cameraZoom(event.wheelDeltaY*0.01);
+        // $scope.boardConcontroller.rotateCamera([0,event.wheelDeltaY*0.001]);
+    }
     function onDocumentMouseUp(event){
-        $scope.dragging = false;
+        $scope.dragging = null;
     }
     function onDocumentTouchStart( event ) {
         event.preventDefault();
@@ -378,10 +406,10 @@ function mapController($scope,$http){
             $scope.boardConcontroller.moveBackward(1);
             break;
             case "left":
-            $scope.boardConcontroller.trackLeft(1);
+            $scope.boardConcontroller.trackCamera(-0.1);
             break;
             case "right":
-            $scope.boardConcontroller.trackRight(1);
+            $scope.boardConcontroller.trackCamera(0.1);
             break;
             default:
 
