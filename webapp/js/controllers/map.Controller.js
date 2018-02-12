@@ -13,6 +13,7 @@ function mapController($scope,$http){
     $scope.availableResources = [];
     //modo de juego
     $scope.playModelSelected = null;
+    $scope.allowBroadcast = true;
     $scope.screenModes = [FLOOR_EDITION, WALL_EDITION, CHARACTER_EDITION, PLAY_MODE];
     $scope.submode = null;
     $scope.modeOptions = [];
@@ -24,6 +25,8 @@ function mapController($scope,$http){
     $scope.clickRotateButton = clickRotateButton;
     $scope.cameraControlsHandler = onClickControlCameraButton;
     $scope.changeSelectedResource = changeSelectedResource;
+    $scope.exportMap = exportMap;
+
     $http.get('config/resources.json')
         .then(function(res){
             $scope.resources = res.data;
@@ -38,6 +41,7 @@ function mapController($scope,$http){
         document.addEventListener("keydown", keyDown, false);
         window.addEventListener( 'mousemove', onMouseMove, false );
         board.addEventListener( 'mousedown', onDocumentMouseDown, false );
+        board.addEventListener( 'mouseup', onDocumentMouseUp, false );
         board.addEventListener( 'touchstart', onDocumentTouchStart, false );
 
         board.addEventListener( 'onTileClick', onTileClick, false );
@@ -55,6 +59,24 @@ function mapController($scope,$http){
     $scope.$watch("availableResources",function(newValue,oldValue){
         $scope.selectedResource = newValue[0];
     });
+    $scope.$on("beginExport", function(event,args){
+         var result = $scope.exportMap();
+
+         $scope.$emit("exportEndResult",result);
+    });
+
+    $scope.$on("onExternalCommand", function(event,args){
+        $scope.allowBroadcast = false;
+        mapCommand(args);
+        $scope.allowBroadcast = true;
+    });
+
+    $scope.$on("updateRequest", function(event,args){
+        $scope.exportOutput = args;
+         silentImport();
+    });
+
+
     //events
     function keyDown(e) {
         var keyCode = e.keyCode;
@@ -90,13 +112,29 @@ function mapController($scope,$http){
     function onMouseMove(event){
         event.preventDefault();
         var rotation = [0,0];
+        if($scope.dragging){
+
+            console.log(event);
+        }
         rotation[0] = event.clientX / window.innerWidth;
         rotation[1] = event.clientY / window.innerHeight;
-        //$scope.boardConcontroller.rotateCamera(rotation);
+
+        if(event.shiftKey && $scope.dragging){
+            $scope.boardConcontroller.rotateCamera(rotation);
+        }
     }
     function onDocumentMouseDown( event ) {
         event.preventDefault();
-        $scope.boardConcontroller.clickInteractionWithCoods( event.offsetX,event.offsetY );
+        if(event.button == 0){
+            $scope.boardConcontroller.clickInteractionWithCoods( event.offsetX,event.offsetY );
+        }else if(event.button == 1){
+            $scope.dragging = true;
+        }
+
+    }
+
+    function onDocumentMouseUp(event){
+        $scope.dragging = false;
     }
     function onDocumentTouchStart( event ) {
         event.preventDefault();
@@ -355,6 +393,13 @@ function mapController($scope,$http){
     }
 
     function mapCommand(command){
+
+        if(command.commandId == null){
+            command.commandId = guid();
+        }
+        var propagate = false;
+
+
         switch (command.action) {
             case "add":
 
@@ -382,7 +427,8 @@ function mapController($scope,$http){
                                 };
 
                             //propagar el evento en el socket
-                            $scope.$emit('mapCommand', command);
+                            propagate= true;
+
                             break;
 
                         case "wallTile":
@@ -403,7 +449,8 @@ function mapController($scope,$http){
                                 "orientation":command.orientation
                             };
                             //propagar el evento en el socket
-                            $scope.$emit('mapCommand', command);
+                            //propagar el evento en el socket
+                            propagate= true;
                             break;
 
                         case "model":
@@ -423,7 +470,8 @@ function mapController($scope,$http){
                                 "rotation":command.rotation,
                                 "idObject":command.idObject,
                             };
-                            $scope.$emit('mapCommand', command);
+                            //propagar el evento en el socket
+                            propagate= true;
                             break;
 
                     }
@@ -449,7 +497,8 @@ function mapController($scope,$http){
                     objToMove.position = command.destination
 
                     //propagar el evento
-                    $scope.$emit('mapCommand', command);
+                    //propagar el evento en el socket
+                    propagate= true;
 
                 }else{
                     console.log("comando ignorado: "+command );
@@ -464,7 +513,8 @@ function mapController($scope,$http){
                     $scope.boardConcontroller.rotateObject(objToRotate.obj,command.angle);
                     objToRotate.rotation = command.angle;
                     //propagar el evento
-                    $scope.$emit('mapCommand', command);
+                    //propagar el evento en el socket
+                    propagate= true;
                 }else{
                     console.log("comando ignorado: "+command );
                 }
@@ -480,37 +530,50 @@ function mapController($scope,$http){
                     console.log("delete obj with id:"+command.idObject);
 
                     //propagar el evento
-                    $scope.$emit('mapCommand', command);
+                    //propagar el evento en el socket
+                    propagate= true;
                 }
 
                 break;
             default:
 
         }
+
+
+        //command.finalResult = exportMap();
+        if($scope.allowBroadcast && propagate){
+            $scope.$emit('mapCommand', command);
+        }
+
+
     }
 
     function exportMap(){
-        $scope.$apply(function(){
 
-            var output = [];
+        var output = [];
 
-            for(var i in $scope.objs){
-                var newObj = JSON.parse(JSON.stringify($scope.objs[i]));
-                newObj.idObject = i;
-                delete newObj.obj;
+        for(var i in $scope.objs){
+            var newObj = JSON.parse(JSON.stringify($scope.objs[i]));
+            newObj.idObject = i;
+            delete newObj.obj;
 
-                output.push(newObj);
-            }
+            output.push(newObj);
+        }
 
-            $scope.exportOutput =JSON.stringify(output);
-        });
+        $scope.exportOutput =JSON.stringify(output);
+
+        return $scope.exportOutput;
+
     }
 
     function importMap(){
 
         clearMap();
+        if(typeof($scope.exportOutput) != "object"){
+            return;
+        }
 
-        var info = JSON.parse($scope.exportOutput);
+        var info = $scope.exportOutput;
 
         for(var i in info){
             var command = info[i];
@@ -518,6 +581,16 @@ function mapController($scope,$http){
 
             mapCommand(command);
         }
+
+    }
+
+    function silentImport(){
+        $scope.allowBroadcast = false;
+
+        importMap();
+
+        $scope.allowBroadcast = true;;
+
 
     }
 

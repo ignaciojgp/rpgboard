@@ -13,7 +13,7 @@
 
     <script src="js/controllers/3dBoard.Controller.js"></script>
     <script src="js/controllers/map.Controller.js"></script>
-    <script src="js/services/socket.service.js"></script>
+    <!-- <script src="js/services/socket.service.js"></script> -->
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/app.js"></script>
@@ -22,15 +22,21 @@
 <body ng-controller="app-controller">
     <div class="mapcontroller" ng-controller="map-controller" >
         <div class="controls" id="controls">
+
             <camera-controls con-handler="cameraControlsHandler"></camera-controls>
-            <textarea name="name" rows="20" cols="25" ng-model="exportOutput"></textarea>
+            <textarea name="name" rows="2" cols="25" ng-model="exportOutput"></textarea>
         </div>
 
         <div class="board" id="board">
 
         </div>
 
-        <div class="topControlls">
+        <div class="topControlls bkgblack">
+            <div>
+                MAPID: <a href="?mapid={{mapID}}">{{mapID}}</a>
+            </div>
+
+            <hr>
             <span ng-repeat="index in screenModes" >
                 <button  ng-click="changeMode(index)" ng-class="selectedScreenMode == index ? 'selected':'' ">{{index}}</button>
             </span>
